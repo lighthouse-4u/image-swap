@@ -135,6 +135,14 @@ app.get('/fetch', async (req: Request, res: Response) => {
     const contentType = response.headers.get('content-type') || '';
     const buffer = Buffer.from(await response.arrayBuffer());
 
+    if (/\.(svg|ico)(\?|$)/i.test(url)) {
+      const ct = contentType.split(';')[0].trim() || (/\.ico(\?|$)/i.test(url) ? 'image/x-icon' : 'image/svg+xml');
+      res.set('Content-Type', ct);
+      res.set('Cache-Control', 'public, max-age=3600');
+      res.send(buffer);
+      return;
+    }
+
     let width: number;
     let height: number;
     let imageMeta: { width: number; height: number; hasAlpha: boolean } | null = null;
