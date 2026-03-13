@@ -15,7 +15,9 @@
 
   function getProxyUrl(originalUrl) {
     if (!originalUrl || originalUrl.startsWith(PROXY_BASE) || originalUrl.startsWith('data:')) return originalUrl;
-    return `${PROXY_BASE}?url=${encodeURIComponent(originalUrl)}`;
+    let proxyUrl = `${PROXY_BASE}?url=${encodeURIComponent(originalUrl)}`;
+    if (originalUrl.startsWith('/')) proxyUrl += `&base=${encodeURIComponent(location.origin)}`;
+    return proxyUrl;
   }
 
   function proxyMediaElement(el) {
