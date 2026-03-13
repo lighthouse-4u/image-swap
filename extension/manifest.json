@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Image/Video Mockup Proxy",
+  "version": "1.0.0",
+  "description": "Proxy all image and video requests through a server that returns mockup placeholders",
+  "background": { "service_worker": "background.js" },
+  "host_permissions": ["<all_urls>", "https://images.fusion-tech.dev/*"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["loader.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}
