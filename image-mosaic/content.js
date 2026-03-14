@@ -23,37 +23,45 @@
   function proxyMediaElement(el) {
     if (el.tagName === 'IMG' && el.src) {
       el.removeAttribute('crossorigin');
-      const proxyUrl = getProxyUrl(el.src);
+      const originalUrl = el.src;
+      const proxyUrl = getProxyUrl(originalUrl);
       if (proxyUrl.startsWith('data:')) return;
       const id = 'p' + Math.random().toString(36).slice(2);
       pending.set(id, el);
+      el.setAttribute('data-original-src', originalUrl);
       el.src = PLACEHOLDER;
       document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
     }
     if (el.tagName === 'VIDEO') {
       el.removeAttribute('crossorigin');
       if (el.poster) {
-        const proxyUrl = getProxyUrl(el.poster);
+        const originalUrl = el.poster;
+        const proxyUrl = getProxyUrl(originalUrl);
         if (!proxyUrl.startsWith('data:')) {
           const id = 'p' + Math.random().toString(36).slice(2);
           pending.set(id, el);
+          el.setAttribute('data-original-poster', originalUrl);
           el.poster = PLACEHOLDER;
           document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl, attr: 'poster' } }));
         }
       }
       if (el.src) {
-        const proxyUrl = getProxyUrl(el.src);
+        const originalUrl = el.src;
+        const proxyUrl = getProxyUrl(originalUrl);
         const id = 'p' + Math.random().toString(36).slice(2);
         pending.set(id, el);
+        el.setAttribute('data-original-src', originalUrl);
         el.src = PLACEHOLDER;
         document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
       }
       el.querySelectorAll('source').forEach((s) => {
         s.removeAttribute('crossorigin');
         if (s.src) {
-          const proxyUrl = getProxyUrl(s.src);
+          const originalUrl = s.src;
+          const proxyUrl = getProxyUrl(originalUrl);
           const id = 'p' + Math.random().toString(36).slice(2);
           pending.set(id, s);
+          s.setAttribute('data-original-src', originalUrl);
           s.src = PLACEHOLDER;
           document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
         }
@@ -61,9 +69,11 @@
     }
     if (el.tagName === 'SOURCE' && el.src) {
       el.removeAttribute('crossorigin');
-      const proxyUrl = getProxyUrl(el.src);
+      const originalUrl = el.src;
+      const proxyUrl = getProxyUrl(originalUrl);
       const id = 'p' + Math.random().toString(36).slice(2);
       pending.set(id, el);
+      el.setAttribute('data-original-src', originalUrl);
       el.src = PLACEHOLDER;
       document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
     }
@@ -91,6 +101,7 @@
         }
         const id = 'p' + Math.random().toString(36).slice(2);
         pending.set(id, this);
+        this.setAttribute('data-original-src', v);
         nativeSet.call(this, PLACEHOLDER);
         document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
       },
@@ -112,6 +123,7 @@
         }
         const id = 'p' + Math.random().toString(36).slice(2);
         pending.set(id, this);
+        this.setAttribute('data-original-src', v);
         nativeSet.call(this, PLACEHOLDER);
         document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
       },
@@ -132,6 +144,7 @@
       }
       const id = 'p' + Math.random().toString(36).slice(2);
       pending.set(id, this);
+      this.setAttribute('data-original-src', v);
       this.setAttribute('src', PLACEHOLDER);
       document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
     },
@@ -152,6 +165,7 @@
         }
         const id = 'p' + Math.random().toString(36).slice(2);
         pending.set(id, this);
+        this.setAttribute('data-original-poster', v);
         nativeSet.call(this, PLACEHOLDER);
         document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl, attr: 'poster' } }));
       },
@@ -167,6 +181,7 @@
       if (!proxyUrl.startsWith('data:')) {
         const id = 'p' + Math.random().toString(36).slice(2);
         pending.set(id, this);
+        this.setAttribute('data-original-poster', value);
         nativeSetAttribute.call(this, name, PLACEHOLDER);
         document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl, attr: 'poster' } }));
         return;
@@ -179,6 +194,7 @@
         if (!proxyUrl.startsWith('data:')) {
           const id = 'p' + Math.random().toString(36).slice(2);
           pending.set(id, this);
+          this.setAttribute('data-original-src', value);
           nativeSetAttribute.call(this, name, PLACEHOLDER);
           document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
           return;
@@ -190,6 +206,7 @@
           const proxyUrl = getProxyUrl(first);
           const id = 'p' + Math.random().toString(36).slice(2);
           pending.set(id, this);
+          this.setAttribute('data-original-src', first);
           this.removeAttribute('srcset');
           nativeSetAttribute.call(this, 'src', PLACEHOLDER);
           document.dispatchEvent(new CustomEvent('__proxyFetch', { detail: { id, url: proxyUrl } }));
