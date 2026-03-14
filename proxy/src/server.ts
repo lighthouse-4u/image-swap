@@ -1,9 +1,9 @@
-import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import sharp from 'sharp';
-import https from 'https';
-import http from 'http';
 import dotenv from 'dotenv';
+import express, { NextFunction, Request, Response } from 'express';
+import http from 'http';
+import https from 'https';
+import sharp from 'sharp';
 
 dotenv.config();
 
@@ -88,11 +88,13 @@ async function createMosaicMockup(
     .toBuffer();
 }
 
-function createSvgPlaceholder(width: number, height: number): Promise<Buffer> {
+function createSvgPlaceholder(width: number, height: number, label?: string): Promise<Buffer> {
+  const safeLabel = label ? String(label).replace(/[<>&"']/g, '') : '';
+  const text = safeLabel ? `${safeLabel} ${width}×${height}` : `${width}×${height}`;
   const svg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="#e0e0e0"/>
-      <text x="50%" y="50%" text-anchor="middle" dy=".35em" font-family="sans-serif" font-size="24" fill="#666">${width}×${height}</text>
+      <text x="50%" y="50%" text-anchor="middle" dy=".35em" font-family="sans-serif" font-size="24" fill="#666">${text}</text>
     </svg>`;
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
@@ -118,6 +120,13 @@ app.get('/fetch', async (req: Request, res: Response) => {
     ? Number(gridParam)
     : 16;
 
+  let label: string | undefined;
+  try {
+    label = new URL(url).pathname.split('/').filter(Boolean).pop() || undefined;
+  } catch {
+    label = undefined;
+  }
+
   try {
     const response = await fetch(url, {
       headers: { 'User-Agent': 'ImageMockupProxy/1.0' }
@@ -125,7 +134,7 @@ app.get('/fetch', async (req: Request, res: Response) => {
 
     if (!response.ok) {
       const { width, height } = DEFAULT_VIDEO_SIZE;
-      const mockup = await createSvgPlaceholder(width, height);
+      const mockup = await createSvgPlaceholder(width, height, label);
       res.set('Content-Type', 'image/png');
       res.set('Cache-Control', 'public, max-age=3600');
       res.send(mockup);
@@ -182,10 +191,10 @@ app.get('/fetch', async (req: Request, res: Response) => {
           imageMeta.hasAlpha
         );
       } catch {
-        mockup = await createSvgPlaceholder(width, height);
+        mockup = await createSvgPlaceholder(width, height, label);
       }
     } else {
-      mockup = await createSvgPlaceholder(width, height);
+      mockup = await createSvgPlaceholder(width, height, label);
     }
 
     res.set('Content-Type', 'image/png');
@@ -193,7 +202,7 @@ app.get('/fetch', async (req: Request, res: Response) => {
     res.send(mockup);
   } catch (err) {
     console.error(err instanceof Error ? err.message : 'Unknown error');
-    const mockup = await createSvgPlaceholder(100, 100);
+    const mockup = await createSvgPlaceholder(100, 100, label);
     res.set('Content-Type', 'image/png');
     res.send(mockup);
   }
