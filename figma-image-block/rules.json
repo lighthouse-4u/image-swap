@@ -5,7 +5,7 @@
     "action": {
       "type": "redirect",
       "redirect": {
-        "regexSubstitution": "https://images.fusion-tech.dev/fetch?url=\\0"
+        "regexSubstitution": "https://images.fusion-tech.dev/fetch/figma?url=\\0"
       }
     },
     "condition": {
