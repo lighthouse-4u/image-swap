@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Image/Video Proxy (Network)",
+  "version": "1.0.0",
+  "description": "Block image and video requests before network, redirect to mockup proxy",
+  "permissions": ["declarativeNetRequest"],
+  "host_permissions": ["<all_urls>", "https://images.fusion-tech.dev/*"],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "proxy_rules",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}

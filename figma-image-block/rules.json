@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://images.fusion-tech.dev/fetch?url=\\0"
+      }
+    },
+    "condition": {
+      "regexFilter": "^https://s3-alpha-sig\\.figma\\.com/",
+      "excludedRequestDomains": ["images.fusion-tech.dev"]
+    }
+  }
+]
